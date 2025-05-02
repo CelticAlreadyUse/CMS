@@ -1,0 +1,19 @@
+server:
+  port: 8080
+  host: localhost
+  
+mysql:
+  host: localhost
+  port: 3306
+  username: root
+  password: password
+  name: yourdb
+mongodb:
+  dbuser: root
+  dbhost: localhost
+  dbport: 0.0.0.0
+  dbname: dbname
+  dbcollection: your_db_collection  
+jwt:
+  secret_key: your_secret_key
+  expiration_minutes: 60
