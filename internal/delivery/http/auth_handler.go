@@ -44,7 +44,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 	token, err := h.authUsecase.Login(c.Request.Context(), request)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized,ErrorResponse{
+		c.JSON(http.StatusUnauthorized, ErrorResponse{
 			Error: err.Error(),
 		})
 		return

@@ -20,7 +20,7 @@ func InitCateoryHandler(usecase model.CategoryUsecases) *CategoryHandler {
 	return &CategoryHandler{Categoryusecase: usecase}
 }
 func (handler *CategoryHandler) RegisterRoute(r *gin.Engine) {
-	g := r.Group("/v1/category")
+	g := r.Group("/v1/categories")
 	g.GET("", handler.GetCategoryList)
 	g.GET("/:id", handler.GetCategoryByID)
 	g.PUT("/:id", handler.UpdateCategory)
