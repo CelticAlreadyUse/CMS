@@ -73,6 +73,36 @@ All endpoints return JSON. Standard response:
 - HTTP status codes follow REST conventions (200 OK, 201 Created, 400 Bad Request, 404 Not Found, 500 Internal Server Error).
 - All panic sources in comment POST have been fixed with proper error handling and type assertion.
 
+## Redis Configuration
+
+The project uses Redis for caching and other purposes. Ensure Redis is installed and running on your system. Configure the connection settings in `config.yaml`:
+
+- `RedisHost`: The hostname of your Redis server.
+- `RedisPort`: The port number of your Redis server.
+- `RedisPass`: The password for your Redis server, if applicable.
+
+## Configuration Files
+
+- `config.yaml`: Contains configuration settings for the application, including database and Redis connection details.
+- `dbconfig.yml`: Contains database-specific configuration settings.
+
+## Usage Examples
+
+### Example Request for Creating a Custom Page
+```bash
+curl -X POST http://localhost:8080/v1/pages \
+-H "Content-Type: application/json" \
+-d '{"title": "New Page", "url": "new-page", "content": "This is a new custom page."}'
+```
+
+### Example Response
+```json
+{
+  "data": 123,
+  "message": "Custom page created successfully"
+}
+```
+
 ---
 
-For more details, see the code in each respective directory.
+Ensure all configurations are set correctly before running the application. For more details, see the code in each respective directory.
