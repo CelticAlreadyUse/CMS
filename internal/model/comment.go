@@ -7,12 +7,12 @@ import (
 
 type CommentUsecases interface {
 	Create(ctx context.Context, req *CommentRequest) (*Comment, error)
-	FindAllCommentsByNewsID(ctx context.Context, storyID int64) ([]Comment, error)
+	FindAllCommentsByNewsID(ctx context.Context, newsID int64) ([]Comment, error)
 	Delete(ctx context.Context, id int64) error
 }
 type CommentsRepository interface {
 	Store(ctx context.Context, req *Comment) (*Comment, error)
-	FindAllCommentsByNewsID(ctx context.Context, storyID int64) ([]Comment, error)
+	FindAllCommentsByNewsID(ctx context.Context, newsID int64) ([]Comment, error)
 	Delete(ctx context.Context, id int64) error
 }
 type CommentRequest struct {

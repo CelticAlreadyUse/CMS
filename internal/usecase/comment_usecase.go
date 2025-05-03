@@ -36,6 +36,6 @@ func (u *commentUsecase) Create(ctx context.Context, req *model.CommentRequest) 
 func (u *commentUsecase) Delete(ctx context.Context, id int64) error {
 	return u.commentRepository.Delete(ctx, id)
 }
-func (u *commentUsecase) FindAllCommentsByNewsID(ctx context.Context, storyID int64) ([]model.Comment, error) {
-	return u.commentRepository.FindAllCommentsByNewsID(ctx, storyID)
+func (u *commentUsecase) FindAllCommentsByNewsID(ctx context.Context, newsID int64) ([]model.Comment, error) {
+	return u.commentRepository.FindAllCommentsByNewsID(ctx, newsID)
 }
