@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"time"
-
 	"github.com/CelticAlreadyUse/CMS/internal/model"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -32,9 +31,7 @@ func (r *newsRepository) Create(ctx context.Context, news *model.News) (*model.N
 func (r *newsRepository) GetAll(ctx context.Context) ([]model.News, error) {
 	var newsList []model.News
 	if err := r.db.WithContext(ctx).
-		Where("deleted_at IS NULL").
 		Order("created_at DESC").
-		Preload("Comments").
 		Find(&newsList).Error; err != nil {
 		return nil, err
 	}
@@ -42,11 +39,10 @@ func (r *newsRepository) GetAll(ctx context.Context) ([]model.News, error) {
 	return newsList, nil
 }
 
-func (r *newsRepository) GetByID(ctx context.Context, id int64) (*model.News, error) {
+func (r *newsRepository) GetByID(ctx context.Context, newsID int64) (*model.News, error) {
 	var news model.News
 	if err := r.db.WithContext(ctx).
-		Where("id = ?", id).
-		Preload("Comments").
+		Where("id = ?", newsID).
 		First(&news).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("news not found")
@@ -56,20 +52,34 @@ func (r *newsRepository) GetByID(ctx context.Context, id int64) (*model.News, er
 	}
 	return &news, nil
 }
-func (r *newsRepository) Update(ctx context.Context, id int64, news *model.News) error {
-	news.UpdatedAt = time.Now() 
+func (r *newsRepository) Update(ctx context.Context, userID int64, news *model.News) error {
+	var existing model.News
 	if err := r.db.WithContext(ctx).
-		Model(&model.News{}).
-		Where("id = ?", id).
-		Select("Title", "Content", "CategoryID", "UpdatedAt").
-		Updates(news).Error; err != nil {
-		logrus.Warnf("update news failed: %v", err)
-		return  err
+		Select("id", "user_id").
+		Where("id = ?", news.ID).
+		First(&existing).Error; err != nil {
+		return err
 	}
+	if existing.UserID != userID {
+		return errors.New("you don't have permission to update this news")
+	}
+	news.UpdatedAt = time.Now()
+	err := r.db.WithContext(ctx).
+		Model(&model.News{}).
+		Where("id = ?", news.ID).
+		Updates(map[string]interface{}{
+			"title":       news.Title,
+			"content":     news.Content,
+			"category_id": news.CategoryID,
+			"updated_at":  news.UpdatedAt,
+		}).Error
 
+	if err != nil {
+		logrus.Warnf("update news failed: %v", err)
+		return err
+	}
 	return nil
 }
-
 
 func (r *newsRepository) Delete(ctx context.Context, id int64) error {
 	res := r.db.WithContext(ctx).Delete(&model.News{}, id)

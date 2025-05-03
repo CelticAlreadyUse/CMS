@@ -44,3 +44,12 @@ func (r authRepository) FindByUsername(ctx context.Context, username string) (*m
 	return &data, err
 
 }
+func (r *authRepository) FindUserNameByID(ctx context.Context, id int64) (string, error) {
+	var user model.User
+
+	if err := r.db.WithContext(ctx).Select("username").First(&user, id).Error; err != nil {
+		return "", err
+	}
+
+	return user.Username, nil
+}

@@ -82,3 +82,6 @@ func (u *authUsecase)Register(ctx context.Context,req model.RegisterRequest)(str
 	}
 	return accessToken,nil
 }
+func (u *authUsecase)FindUserNameByID(ctx context.Context,id int64)(string,error){
+	return u.FindUserNameByID(ctx,id)
+}

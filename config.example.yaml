@@ -14,6 +14,10 @@ mongodb:
   dbport: 0.0.0.0
   dbname: dbname
   dbcollection: your_db_collection  
+redis:
+  dbhost: localhost
+  dbport: 6379
+  dbpass:
 jwt:
   secret_key: your_secret_key
   expiration_minutes: 60

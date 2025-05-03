@@ -40,3 +40,12 @@ func JWTSigningKey() string {
 func JWTExp() time.Duration {
 	return viper.GetDuration("jwt.exp")
 }
+func RedisHost() string {
+	return viper.GetString("redis.dbhost")
+}
+func RedisPort() string {
+	return viper.GetString("redis.dbport")
+}
+func RedisPass() string {
+	return viper.GetString("redis.dbpass")
+}
