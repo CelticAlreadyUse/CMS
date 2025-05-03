@@ -11,11 +11,13 @@ type ContextAuthKey string
 
 type UserAuthRepository interface {
 	Store(ctx context.Context, req User) (int64, error)
-	FindByUsername(ctx context.Context,username string )(*User,error)
+	FindByUsername(ctx context.Context, username string) (*User, error)
+	FindUserNameByID(ctx context.Context, id int64) (string, error)
 }
 type UserAuthUsecase interface {
 	Register(ctx context.Context, req RegisterRequest) (string, error)
 	Login(ctx context.Context, req LoginRequest) (string, error)
+	FindUserNameByID(ctx context.Context, id int64) (string, error)
 }
 
 const BearerAuthKey ContextAuthKey = "BearerAuth"
@@ -36,7 +38,7 @@ type RegisterRequest struct {
 	Password string `json:"password" binding:"required,notblank"`
 }
 type CustomClaims struct {
-	UserID   int64  `json:"user_id"`
+	UserID int64 `json:"user_id"`
 	jwt.RegisteredClaims
 }
 type ConfigJWT struct {

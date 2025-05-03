@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/CelticAlreadyUse/CMS/internal/helper"
+	"github.com/CelticAlreadyUse/CMS/internal/middleware"
 	"github.com/CelticAlreadyUse/CMS/internal/model"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -23,9 +24,9 @@ func (handler *NewsHandler) RegisterRoute(r *gin.Engine) {
 	g := r.Group("/v1/news")
 	g.GET("", handler.GetAll)
 	g.GET("/:id", handler.GetNewsByID)
-	g.PUT("/:id", handler.UpdateNews)
-	g.POST("", handler.CreateNews)
-	g.DELETE("/:id", handler.DeleteNews)
+	g.PUT("/:id", middleware.AuthMiddleware(), handler.UpdateNews)
+	g.POST("", middleware.AuthMiddleware(), handler.CreateNews)
+	g.DELETE("/:id", middleware.AuthMiddleware(), handler.DeleteNews)
 }
 func (h *NewsHandler) GetAll(c *gin.Context) {
 	news, err := h.newsUsecase.GetAll(c.Request.Context())
@@ -33,7 +34,6 @@ func (h *NewsHandler) GetAll(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
 	c.JSON(http.StatusOK, news)
 }
 func (h *NewsHandler) GetNewsByID(c *gin.Context) {
@@ -43,7 +43,9 @@ func (h *NewsHandler) GetNewsByID(c *gin.Context) {
 	}
 	news, err := h.newsUsecase.GetByID(c.Request.Context(), id)
 	if err != nil {
-		helper.NotFound(c, err.Error())
+		c.JSON(http.StatusNotFound, ErrorResponse{
+			Error: err.Error(),
+		})
 		return
 	}
 
@@ -51,16 +53,18 @@ func (h *NewsHandler) GetNewsByID(c *gin.Context) {
 }
 func (h *NewsHandler) CreateNews(c *gin.Context) {
 	var req model.NewsRequest
+	claims := c.Request.Context().Value(model.BearerAuthKey).(model.CustomClaims)
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{
 			Error: "Invalid request format",
 		})
 		return
 	}
-
-	news, err := h.newsUsecase.Create(c.Request.Context(), &req)
+	news, err := h.newsUsecase.Create(c.Request.Context(), claims.UserID, &req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{
+			Error: err.Error(),
+		})
 		return
 	}
 
@@ -68,21 +72,22 @@ func (h *NewsHandler) CreateNews(c *gin.Context) {
 }
 func (h *NewsHandler) UpdateNews(c *gin.Context) {
 	id := c.Param("id")
-	var req *model.News
+	var req *model.NewsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{
 			Error: "Invalid request format",
 		})
 		return
 	}
-	err := h.newsUsecase.Update(c.Request.Context(), id, req)
+	claims := c.Request.Context().Value(model.BearerAuthKey).(model.CustomClaims)
+	err := h.newsUsecase.Update(c.Request.Context(), claims.UserID, id, req)
+
 	if err != nil {
-		c.JSON(http.StatusInternalServerError,ErrorResponse{
+		c.JSON(http.StatusInternalServerError, ErrorResponse{
 			Error: err.Error(),
 		})
 		return
 	}
-
 	c.JSON(http.StatusOK, Response{
 		Message: "News Sucessfully updated",
 	})

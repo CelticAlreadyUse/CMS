@@ -34,12 +34,16 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		v.RegisterValidation("lowercase", helper.Lowercase)
 	}
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		c.JSON(http.StatusBadRequest, ErrorResponse{
+			Error: err.Error(),
+		})
 		return
 	}
 	err := validate.Struct(request)
 	if err != nil {
-		helper.BadRequest(c, err.Error())
+		c.JSON(http.StatusBadRequest, ErrorResponse{
+			Error: err.Error(),
+		})
 		return
 	}
 	token, err := h.authUsecase.Login(c.Request.Context(), request)
@@ -60,12 +64,16 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		v.RegisterValidation("lowercase", helper.Lowercase)
 	}
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		c.JSON(http.StatusBadRequest, ErrorResponse{
+			Error: "Invalid request format",
+		})
 		return
 	}
 	token, err := h.authUsecase.Register(c.Request.Context(), *request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, ErrorResponse{
+			Error: err.Error(),
+		})
 		return
 	}
 	c.JSON(http.StatusOK, Response{
